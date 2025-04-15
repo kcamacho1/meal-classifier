@@ -39,18 +39,23 @@ def get_usda_food_nutrition(fdc_id):
     res.raise_for_status()
     food = res.json()
 
-    nutrients = {}
-    for n in food.get("foodNutrients", []):
-        name = n.get("nutrientName")
-        value = n.get("value")
-        if name and value is not None:
-            nutrients[name] = value
-
-    return {
-        "Calories": nutrients.get("Energy", 0),
-        "Protein (g)": nutrients.get("Protein", 0),
-        "Fat (g)": nutrients.get("Total lipid (fat)", 0),
-        "Carbs (g)": nutrients.get("Carbohydrate, by difference", 0),
-        "Sugar (g)": nutrients.get("Sugars, total including NLEA", 0),
-        "Fiber (g)": nutrients.get("Fiber, total dietary", 0)
+    # Nutrient IDs we want
+    nutrient_ids = {
+        1008: "Calories",
+        1003: "Protein (g)",
+        1004: "Fat (g)",
+        1005: "Carbs (g)",
+        2000: "Sugar (g)",
+        1079: "Fiber (g)"
     }
+
+    nutrients = {v: 0 for v in nutrient_ids.values()}
+
+    for n in food.get("foodNutrients", []):
+        nid = n.get("nutrientId")
+        value = n.get("value")
+        if nid in nutrient_ids and value is not None:
+            nutrients[nutrient_ids[nid]] = value
+
+    return nutrients
+    
