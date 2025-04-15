@@ -29,7 +29,7 @@ def search_usda_foods(query):
         nutrients = {n.get("nutrientName"): n.get("value") for n in food.get("foodNutrients", []) if n.get("nutrientName")}
         nutrient_match_count = sum(1 for key in REQUIRED_NUTRIENTS if key in nutrients and nutrients[key] is not None)
 
-        if nutrient_match_count >= 2:
+        if nutrient_match_count >= 4:
             valid_results.append(food)
 
     return valid_results
