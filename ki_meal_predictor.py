@@ -12,7 +12,12 @@ from tensorflow.keras.layers import Dense
 # Set page config
 st.set_page_config(page_title="Ki Wellness Meal Classifier", layout="centered")
 
-st.title("🥗 Ki Wellness: Healthy Meal Classifier")
+st.title("🥗 Ki Wellness: Meal Classifier")
+st.set_page_config(
+	page_title="Ki Wellness Meal Classifier",
+	page_icon="🥗",
+	layout="centered"
+	)
 st.markdown("Adjust the nutritional values of your meal and click **Predict** to see if it's considered healthy.")
 
 # --- USER INPUT SLIDERS ---
