@@ -39,7 +39,6 @@ def get_usda_food_nutrition(fdc_id):
     res.raise_for_status()
     food = res.json()
 
-    # Nutrient IDs we want
     nutrient_ids = {
         1008: "Calories",
         1003: "Protein (g)",
@@ -52,10 +51,15 @@ def get_usda_food_nutrition(fdc_id):
     nutrients = {v: 0 for v in nutrient_ids.values()}
 
     for n in food.get("foodNutrients", []):
-        nid = n.get("nutrientId")
+        # Get nutrient ID safely from nested structure
+        nid = (
+            n.get("nutrientId") or
+            (n.get("nutrient") or {}).get("id")
+        )
         value = n.get("value")
         if nid in nutrient_ids and value is not None:
             nutrients[nutrient_ids[nid]] = value
 
     return nutrients
+
     
