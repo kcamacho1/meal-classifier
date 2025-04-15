@@ -14,8 +14,11 @@ st.set_page_config(page_title="Ki Wellness: Smart Meal Classifier", page_icon="�
 st.title("🥗 Ki Wellness: AI-Powered Meal Evaluator")
 st.markdown("Search for foods using the USDA database, then let AI analyze how healthy and goal-aligned your meal is.")
 
-# --- Step 1: Food Search ---
-food_choices = {}
+# --- Initialize session state to persist selected foods ---
+if "selected_foods" not in st.session_state:
+    st.session_state.selected_foods = {}
+
+# --- USDA Food Search ---
 search_query = st.text_input("🔍 Search for a food using USDA database:")
 
 if search_query:
@@ -23,42 +26,44 @@ if search_query:
         results = search_usda_foods(search_query)
         if results:
             food_choices = {f"{food['description']} (ID: {food['fdcId']})": food["fdcId"] for food in results}
+            selected_from_search = st.multiselect(
+                "🍴 Select food items from search:",
+                options=list(food_choices.keys()),
+                key="food_selector"
+            )
+            for label in selected_from_search:
+                st.session_state.selected_foods[label] = food_choices[label]
         else:
             st.warning("No foods found. Try a more specific keyword.")
     except Exception as e:
         st.error(f"USDA API Error: {e}")
 
-if food_choices:
-    selected_items = st.multiselect("🍴 Select food items:", list(food_choices.keys()))
-else:
-    selected_items = []
-    st.info("Enter a food to search the USDA database.")
+# --- Selected Foods Display ---
+if st.session_state.selected_foods:
+    st.subheader("✅ Selected Foods (Saved Across Searches)")
+    for label in st.session_state.selected_foods:
+        st.markdown(f"- {label}")
 
+    meal_type = st.selectbox("🍽️ Meal Type:", ["Breakfast", "Lunch", "Dinner", "Snack"])
+    goal = st.selectbox("🎯 Health Goal:", ["Weight Loss", "Muscle Gain", "Balanced Nutrition"])
 
-selected_items = st.multiselect(
-	"🍴 Select food items:", 
-	list(food_choices.keys()),
-	key="food selector"
-	)
-meal_type = st.selectbox("🍽️ Meal Type:", ["Breakfast", "Lunch", "Dinner", "Snack"])
-goal = st.selectbox("🎯 Health Goal:", ["Weight Loss", "Muscle Gain", "Balanced Nutrition"])
+    # --- Calculate Nutrition ---
+    meal_nutrition = np.zeros(6)
+    nutrition_labels = ["Calories", "Protein (g)", "Fat (g)", "Carbs (g)", "Sugar (g)", "Fiber (g)"]
 
-meal_nutrition = np.zeros(6)
-nutrition_labels = ["Calories", "Protein (g)", "Fat (g)", "Carbs (g)", "Sugar (g)", "Fiber (g)"]
-
-if selected_items:
     st.subheader("📊 Nutritional Summary")
-    for item in selected_items:
+    for label, fdc_id in st.session_state.selected_foods.items():
         try:
-            nutrition = get_usda_food_nutrition(food_choices[item])
-            values = [nutrition[label] for label in nutrition_labels]
+            nutrition = get_usda_food_nutrition(fdc_id)
+            values = [nutrition[n] for n in nutrition_labels]
             meal_nutrition += values
-            for label, value in zip(nutrition_labels, values):
-                st.write(f"**{item}** - {label}: {value}")
+            st.markdown(f"**{label}**")
+            for n, v in zip(nutrition_labels, values):
+                st.write(f"- {n}: {v}")
         except Exception as e:
-            st.error(f"Failed to fetch details for {item}: {e}")
+            st.error(f"Failed to fetch nutrition for {label}: {e}")
 
-    # --- Step 2: Normalize & Predict ---
+    # --- Normalize for Model ---
     X_train = np.array([
         [350, 25, 10, 20, 5, 8],
         [700, 15, 30, 50, 20, 2],
@@ -70,7 +75,7 @@ if selected_items:
     X_max = np.max(X_train, axis=0)
     input_norm = meal_nutrition / X_max
 
-    # Load or train model
+    # --- Load or Train Model ---
     model_path = "meal_model.h5"
     if os.path.exists(model_path):
         model = load_model(model_path)
@@ -93,9 +98,9 @@ if selected_items:
     else:
         st.error("⚠️ This meal is classified as **Not Healthy**")
 
-    # --- Goal Evaluation ---
-    def goal_match(nutrition, goal):
-        calories, protein, fat, carbs, sugar, fiber = nutrition
+    # --- Goal Check ---
+    def goal_match(n, goal):
+        calories, protein, fat, carbs, sugar, fiber = n
         if goal == "Weight Loss":
             return calories < 500 and sugar < 10
         elif goal == "Muscle Gain":
@@ -108,5 +113,6 @@ if selected_items:
         st.success(f"🎯 This meal supports your **{goal}** goal.")
     else:
         st.warning(f"⚠️ This meal may not fully support **{goal}**. Consider adjustments.")
+
 else:
-    st.info("👆 Start by searching for and selecting foods.")
+    st.info("👆 Use the search above to add foods to your meal.")
