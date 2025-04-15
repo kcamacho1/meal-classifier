@@ -18,8 +18,15 @@ def get_usda_food_nutrition(fdc_id):
     res = requests.get(f"{FOOD_URL}{fdc_id}?api_key={API_KEY}")
     res.raise_for_status()
     food = res.json()
-    nutrients = {n["nutrientName"]: n["value"] for n in food["foodNutrients"]}
-    
+
+    # Gracefully handle missing nutrientName or value fields
+    nutrients = {}
+    for n in food.get("foodNutrients", []):
+        name = n.get("nutrientName")
+        value = n.get("value")
+        if name and value is not None:
+            nutrients[name] = value
+
     return {
         "Calories": nutrients.get("Energy", 0),
         "Protein (g)": nutrients.get("Protein", 0),
