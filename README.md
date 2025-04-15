@@ -2,8 +2,7 @@
 
 A smart, Streamlit-based nutrition assistant that uses AI and USDA's FoodData Central API to evaluate meals for healthiness and goal alignment.
 
-https://meal-classifier-mcdhcofxnd8n9rsnbwoz2z.streamlit.app
-![image](https://github.com/user-attachments/assets/e1a83c3a-8080-44d6-acdb-d5900d8c2b48)
+
 
 
 ---
@@ -21,9 +20,8 @@ https://meal-classifier-mcdhcofxnd8n9rsnbwoz2z.streamlit.app
 ---
 
 ## 🚀 Live App
-
-[🌐 Launch the App on Streamlit Cloud]([https://your-deployment-url.streamlit.app](https://meal-classifier-mcdhcofxnd8n9rsnbwoz2z.streamlit.app
-))
+https://meal-classifier-mcdhcofxnd8n9rsnbwoz2z.streamlit.app
+![image](https://github.com/user-attachments/assets/e1a83c3a-8080-44d6-acdb-d5900d8c2b48)
 
 ---
 
