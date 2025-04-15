@@ -15,15 +15,25 @@ st.title("🥗 Ki Wellness: AI-Powered Meal Evaluator")
 st.markdown("Search for foods using the USDA database, then let AI analyze how healthy and goal-aligned your meal is.")
 
 # --- Step 1: Food Search ---
+food_choices = {}
 search_query = st.text_input("🔍 Search for a food using USDA database:")
-food_choices = []
 
 if search_query:
     try:
         results = search_usda_foods(search_query)
-        food_choices = {f"{food['description']} (ID: {food['fdcId']})": food["fdcId"] for food in results}
+        if results:
+            food_choices = {f"{food['description']} (ID: {food['fdcId']})": food["fdcId"] for food in results}
+        else:
+            st.warning("No foods found. Try a more specific keyword.")
     except Exception as e:
         st.error(f"USDA API Error: {e}")
+
+if food_choices:
+    selected_items = st.multiselect("🍴 Select food items:", list(food_choices.keys()))
+else:
+    selected_items = []
+    st.info("Enter a food to search the USDA database.")
+
 
 selected_items = st.multiselect("🍴 Select food items:", list(food_choices.keys()))
 meal_type = st.selectbox("🍽️ Meal Type:", ["Breakfast", "Lunch", "Dinner", "Snack"])
