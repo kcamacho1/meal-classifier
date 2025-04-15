@@ -35,7 +35,11 @@ else:
     st.info("Enter a food to search the USDA database.")
 
 
-selected_items = st.multiselect("🍴 Select food items:", list(food_choices.keys()))
+selected_items = st.multiselect(
+	"🍴 Select food items:", 
+	list(food_choices.keys()),
+	key="food selector"
+	)
 meal_type = st.selectbox("🍽️ Meal Type:", ["Breakfast", "Lunch", "Dinner", "Snack"])
 goal = st.selectbox("🎯 Health Goal:", ["Weight Loss", "Muscle Gain", "Balanced Nutrition"])
 
