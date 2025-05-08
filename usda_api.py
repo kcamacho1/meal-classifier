@@ -1,6 +1,6 @@
 import requests
 
-API_KEY = "MbvZGPVrj9P3eECrXnVpicA2xfS9Ky0LwaWrUjBR"
+API_KEY = 
 SEARCH_URL = "https://api.nal.usda.gov/fdc/v1/foods/search"
 FOOD_URL = "https://api.nal.usda.gov/fdc/v1/food/"
 
